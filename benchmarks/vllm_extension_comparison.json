@@ -1,0 +1,144 @@
+{
+  "scope": "vLLM 0.9.1 single-active-request integration comparison",
+  "full_accuracy_acceptance": false,
+  "long": {
+    "bf16_wall_seconds": 16.64920149743557,
+    "inquant_wall_seconds": 18.95233889296651,
+    "latency_change_fraction": 0.13833320450147024,
+    "bf16_retrieval": {
+      "correct": 15,
+      "total": 15,
+      "all_correct": true
+    },
+    "inquant_retrieval": {
+      "correct": 15,
+      "total": 15,
+      "all_correct": true
+    },
+    "bf16_kv_payload_bytes_calculated": 1886330880,
+    "inquant_persistent_active_cache_bytes": 413486528,
+    "kv_saving_fraction": 0.7807985161118711,
+    "memory_scope": "Active-page high-water including one unsealed reserved page, all page metadata, exact sink/tail capacity and shared decode workspace; excludes scheduler block tables, model weights and transient quantization tensors. CUDA peak is whole worker, including initialization; pool reservation is reported separately.",
+    "bf16_round_wall_seconds": [
+      16.56761546432972,
+      16.62185373529792,
+      16.703963492065668,
+      16.657741639763117,
+      16.64920149743557
+    ],
+    "bf16_engine_settings": {
+      "dtype": "bfloat16",
+      "kv_cache_dtype": "auto",
+      "max_model_len": 32896,
+      "max_num_seqs": 1,
+      "max_num_batched_tokens": 32896,
+      "enable_chunked_prefill": false,
+      "enable_prefix_caching": false,
+      "enforce_eager": true,
+      "block_size": 256,
+      "gpu_memory_utilization": 0.8,
+      "tensor_parallel_size": 1,
+      "seed": 42,
+      "num_gpu_blocks_override": 130,
+      "hf_overrides": {
+        "rope_scaling": {
+          "rope_type": "yarn",
+          "factor": 4.0,
+          "original_max_position_embeddings": 32768
+        },
+        "max_position_embeddings": 131072
+      }
+    },
+    "inquant_round_wall_seconds": [
+      18.92272201552987,
+      18.95233889296651,
+      18.965907957404852,
+      18.949381485581398,
+      18.957776620984077
+    ],
+    "inquant_engine_settings": {
+      "dtype": "bfloat16",
+      "kv_cache_dtype": "auto",
+      "max_model_len": 32896,
+      "max_num_seqs": 1,
+      "max_num_batched_tokens": 32896,
+      "enable_chunked_prefill": false,
+      "enable_prefix_caching": false,
+      "enforce_eager": true,
+      "block_size": 256,
+      "gpu_memory_utilization": 0.8,
+      "tensor_parallel_size": 1,
+      "seed": 42,
+      "num_gpu_blocks_override": 130,
+      "hf_overrides": {
+        "rope_scaling": {
+          "rope_type": "yarn",
+          "factor": 4.0,
+          "original_max_position_embeddings": 32768
+        },
+        "max_position_embeddings": 131072
+      }
+    }
+  },
+  "math": {
+    "gsm8k": {
+      "bf16": {
+        "correct": 30,
+        "total": 32,
+        "absolute_accuracy": 0.9375,
+        "total_wall_seconds": 132.2036012969911,
+        "output_tokens": 9667
+      },
+      "inquant": {
+        "correct": 29,
+        "total": 32,
+        "absolute_accuracy": 0.90625,
+        "total_wall_seconds": 182.97791689261794,
+        "output_tokens": 10018
+      }
+    },
+    "math500": {
+      "bf16": {
+        "correct": 23,
+        "total": 32,
+        "absolute_accuracy": 0.71875,
+        "total_wall_seconds": 319.1572348475456,
+        "output_tokens": 23274
+      },
+      "inquant": {
+        "correct": 22,
+        "total": 32,
+        "absolute_accuracy": 0.6875,
+        "total_wall_seconds": 379.60483783110976,
+        "output_tokens": 20677
+      }
+    }
+  },
+  "implementation": "Recorded vLLM extension before the direct-page-write runtime changes.",
+  "protocol": {
+    "model_repo": "Qwen/Qwen2.5-7B-Instruct",
+    "model_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "gpu": "NVIDIA A100-PCIE-40GB",
+    "vllm": "0.9.1",
+    "transformers": "4.53.0",
+    "math_subset_seed": 20260919,
+    "math_max_output_tokens": 2048,
+    "math_decoding": "greedy with EOS stopping",
+    "math_rope_scaling": null,
+    "long_workload": {
+      "input_tokens": 32768,
+      "output_tokens": 128,
+      "batch_size": 1,
+      "warmup_runs": 2,
+      "repeats": 5
+    },
+    "requests_per_round": 3
+  },
+  "source_sha256": {
+    "results/vllm_extension_comparison.json": "44cc5f588abfd47e7f50743d3eb37b2db30205b70dc44e92e7366810cfc4b84c",
+    "results/vllm_bf16_extension_control_32k.json": "5846ac3f2db4d8901ff4d97edd21797587130b5ab39d05f3969bec742521b2b4",
+    "results/vllm_inquant_32k.json": "de10a0a8dbfe873a2b7b1d73dd43cc5c61365e08c96f7a4b67e968c141f09450"
+  },
+  "source_note": "The InQuant median of 18.95233889296651 seconds matches all five recorded round times. The historical README value of 16.652 seconds conflicts with those records.",
+  "raw_artifacts_note": "This repository includes aggregate measurements and artifact hashes. Raw predictions and the historical source snapshot are excluded from the source distribution."
+}

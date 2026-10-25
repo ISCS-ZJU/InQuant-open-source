@@ -9,9 +9,11 @@ import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-ROOT_FILES = {'README.md', 'ROADMAP.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
+ROOT_FILES = {'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md',
               'pyproject.toml', 'requirements-reproduce.txt', '.gitignore',
-              'benchmarks/runtime_20260925.json'}
+              'benchmarks/runtime_20260925.json',
+              'benchmarks/hf_full_evaluation.json',
+              'benchmarks/vllm_extension_comparison.json'}
 SOURCE_DIRS = {'src', 'tests', 'extensions', 'third_party'}
 SCRIPTS = {
     'download_model.py', 'prepare_data.py', 'run_eval.py', 'run_matrix.py',
@@ -30,7 +32,7 @@ CONFIGS = {
     'qwen2.5_7b_ruler.json', 'qwen2.5_7b_aime2026.json',
     'mistral_7b_k4v2.json', 'mistral_7b_context32k_k4v2.json',
 }
-ASSETS = {'figure-1.png', 'figure-3.png'}
+ASSETS = {'figure-1.png', 'figure-2.png'}
 SKIP_DIRS = {'.git', '__pycache__', '.pytest_cache', 'build', 'dist'}
 
 
@@ -68,13 +70,13 @@ def main():
     paths = list(source_files())
     manifest = {'format': 1, 'language': 'en',
                 'scope': 'English source release. Historical reports, weights, datasets and raw runs are not bundled.',
-                'files': {str(rel): {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                'files': {rel.as_posix(): {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                                     'bytes': path.stat().st_size} for path, rel in paths}}
     manifest_text = json.dumps(manifest, ensure_ascii=False, indent=2) + '\n'
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(args.output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, rel in paths:
-            archive.write(path, str(Path('InQuant') / rel))
+            archive.write(path, (Path('InQuant') / rel).as_posix())
         archive.writestr('InQuant/SOURCE_MANIFEST.json', manifest_text)
     with zipfile.ZipFile(args.output) as archive:
         if archive.testzip() is not None:
