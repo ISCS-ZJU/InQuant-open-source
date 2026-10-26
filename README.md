@@ -1,6 +1,6 @@
 <div align="center">
 
-# InQuant [Neurips2026]
+# InQuant [NeurIPS2026]
 
 # In-Place Mixed-Precision KV Cache Quantization via Saliency-Aware Neighbor-Slot Reuse
 
