@@ -9,13 +9,13 @@ does not affect attention.
 ``PackedDecodeState`` owns pointer tables, channel decoding maps, and a reusable
 FP32 partial-softmax workspace. ``nbytes`` includes all of these persistent GPU
 allocations, but excludes input PackedTensors, exact tails, queries and outputs.
-Append immutable blocks with ``extend`` instead of rebuilding old descriptors. Pass exact sink/tail
-tensors on every decode; they can include the current, not-yet-sealed token.
+Append immutable blocks with ``extend`` and pass exact sink/tail tensors on
+every decode; they can include the current, not-yet-sealed token.
 The state is not safe for simultaneous calls from different CUDA streams.
 
 Limitations: CUDA, batch=1, head_dim=128, one query token, uniform packed block
 length, query_heads divisible by KV_heads, and no additive mask/dropout/ALiBi.
-This module is optional: importing the core codec never imports Triton.
+The core codec can be imported without Triton.
 """
 
 from __future__ import annotations

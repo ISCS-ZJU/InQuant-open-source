@@ -1,9 +1,8 @@
 """Instance-local Qwen2.5 / Mistral single-token decode over physically packed KV.
 
-Validated against the Transformers 4.53 Qwen2 and Mistral attention interfaces. Prefill and
-unsupported attention-mask modes use the original forward. CUDA decoding calls
-the optional Triton packed kernel; CPU reference decoding is explicitly opt-in
-for correctness tests and is never an accelerated backend.
+Validated against the Transformers 4.53 Qwen2 and Mistral attention interfaces.
+Prefill and unsupported attention masks use the original forward. CUDA decoding
+uses the optional Triton kernel; CPU reference decoding is opt-in for tests.
 """
 from __future__ import annotations
 

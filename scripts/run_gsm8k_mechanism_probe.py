@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Post-hoc causal probes on selected gains/losses; NOT a benchmark or optimized cache.
+"""Post-hoc causal probes on selected GSM8K gains and losses.
 
 The donor oracle stores original K in extra memory, restoring donor entries only.
-Compare it to the same SDPA implementation, not directly to a different kernel.
+The comparison uses the same SDPA implementation.
 """
 import argparse
 import contextlib

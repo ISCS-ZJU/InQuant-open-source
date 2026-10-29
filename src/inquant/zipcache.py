@@ -2,9 +2,9 @@
 
 Upstream: ThisisBillhe/ZipCache, 8833f675a938b019fccc531bfdf932abe6e622ad.
 The unmodified MIT-licensed quantization functions are loaded from third_party.
-This is NOT a fused ZipCache kernel: decode materializes old KV as upstream does.
-The port changes model plumbing, keeps indices on-device, chunks saliency probes,
-and uses a per-request CPU RNG so resume/repeat order cannot change predictions.
+Decode materializes historical KV, as in the upstream implementation. The port
+keeps indices on-device, chunks saliency probes, and uses a per-request CPU RNG
+to keep predictions independent of resume or repeat order.
 """
 from __future__ import annotations
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Dense Qwen2.5/Mistral packed InQuant and cache comparison experiments.
 
-Reference InQuant materializes KV for SDPA; it is NOT a fused serving backend.
-Every successful measured sample includes its real prediction and cache bytes.
+Reference InQuant materializes KV for SDPA. Successful measurements include
+predictions and cache bytes.
 """
 from __future__ import annotations
 

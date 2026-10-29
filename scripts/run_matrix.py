@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Run a reproducible, resumable experiment matrix on one explicitly selected GPU.
 
-Source and configuration snapshots keep a long-running experiment independent
-of subsequent working-tree edits. This script never stops other GPU processes.
+Source and configuration snapshots preserve the inputs to long-running experiments.
+Other GPU processes are left running.
 """
 from __future__ import annotations
 

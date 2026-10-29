@@ -1,4 +1,4 @@
-"""CUDA/reference equivalence; skipped honestly when no CUDA device is available."""
+"""CUDA and reference attention equivalence."""
 import pytest
 import torch
 import torch.nn.functional as F

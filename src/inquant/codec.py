@@ -1,30 +1,17 @@
-"""A physically packed, device-resident InQuant reference representation.
+"""Device-resident reference codec for InQuant's packed KV layout.
 
-The layout follows Algorithms 1/2 and Appendices D/E of the supplied paper:
-every channel owns one nibble, and a salient channel borrows one other channel's
-nibble for its 8-bit code. The descriptor is the sole authority for decoding.
-There is no separate outlier-value buffer and no in-band marker sentinel.
+Each channel owns a 4-bit slot; salient channels borrow a donor slot to store
+an 8-bit code. Explicit source and donor indices describe the layout, and
+overwritten donor values are reconstructed from sampled channel means.
 
-This is a correctness reference, not the paper's fused CUDA implementation.
-Explicit choices where the paper is underspecified are:
+Saliency is computed independently per batch item and head using sampled tokens.
+The ``neighbors`` policy searches outside each contiguous salient run;
+``min_error`` first selects donors by reconstruction error. Per-channel FP32
+scales use the full temporal-block maxima.
 
-* saliency and top-k selection are per batch item/head, over every eighth token;
-* a head's entire channel dimension is one group, with no cross-head fallback;
-* immediate donors are preferred, then a unit-stride search expands from the
-  contiguous salient group's boundaries; ties prefer lower sampled saliency;
-* symmetric per-channel FP32 scales use full temporal-block maxima;
-* every overwritten donor value uses that channel's sampled temporal mean;
-* explicit source/donor indices replace bitmap/stride/marker optimizations.
-
-The optional ``min_error`` donor policy is an engineering variation: it first
-restricts nonsalient donors to the smallest full-block mean-square error under
-sampled-mean reconstruction, then assigns them one-to-one. The default
-``neighbors`` policy retains the paper-inspired local search described above.
-
-Callers must bound temporal block size. All persistent arrays stay on the input
-device. Python loops and validation can synchronize CUDA; no speed claim is made.
-Memory accounting includes all persistent tensor storage, including descriptors,
-scales, and donor padding, but excludes Python objects and temporary workspace.
+Callers must bound the temporal block size. Persistent tensors remain on the
+input device; Python loops and validation may synchronize CUDA. Storage counts
+include payload, scales, indices, and padding, but exclude temporary workspace.
 """
 
 from __future__ import annotations
@@ -59,9 +46,8 @@ class CodecConfig:
 class PackedTensor:
     """Persistent packed values and a descriptor shared by every token in a block.
 
-    ``salient_channels[..., i]`` borrows ``donor_channels[..., i]``. These
-    disjoint, one-to-one indices are sufficient to recover the layout even if
-    any ordinary data nibble happens to match a proposed marker pattern.
+    ``salient_channels[..., i]`` borrows ``donor_channels[..., i]``. The
+    disjoint indices determine channel roles independently of payload values.
     """
 
     payload: torch.Tensor
@@ -145,10 +131,7 @@ def _reuse_map(saliency: torch.Tensor, count: int, donor_error: torch.Tensor | N
     selected.scatter_(-1, sources, True)
     available = ~selected
     if donor_error is not None:
-        # Engineering variant: keep the paper's L1 source selection, but only
-        # borrow from the nonsalient channels with the smallest actual error
-        # under sampled-mean reconstruction. The neighbor search then assigns
-        # these slots one-to-one. Metadata and physical payload are unchanged.
+        # Restrict donors to channels with the lowest sampled-mean error.
         pool = torch.argsort(donor_error.masked_fill(selected, float("inf")), dim=-1, stable=True)[..., :count]
         available = torch.zeros_like(selected)
         available.scatter_(-1, pool, True)
@@ -159,9 +142,7 @@ def _reuse_map(saliency: torch.Tensor, count: int, donor_error: torch.Tensor | N
         distance = (positions - source).abs()
         immediate = available & (distance == 1)
 
-        # Find the boundaries of this contiguous run of salient channels. All
-        # candidates lie outside the run; expand from either boundary in steps
-        # of one until an unused low-saliency slot is reached.
+        # Search outward from both ends of the contiguous salient run.
         left = torch.where((positions < source) & ~selected, positions, -1).amax(-1) + 1
         right = torch.where((positions > source) & ~selected, positions, channels).amin(-1) - 1
         boundary_distance = torch.minimum(

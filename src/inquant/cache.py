@@ -1,9 +1,7 @@
-"""Append-only Hugging Face reference cache for dense Qwen2.5 and Mistral models.
+"""Append-only Hugging Face reference cache for Qwen2.5 and Mistral.
 
-The persistent cache is compressed, but attention still receives fully materialized
-floating-point K/V. This adapter validates quality and storage accounting; it is
-not a fused attention backend and makes no latency or peak-memory guarantee.
-Only batch-one, append-only greedy inference is supported.
+Persistent KV is compressed and materialized in floating point for attention.
+The adapter supports batch-one, append-only greedy inference.
 """
 from __future__ import annotations
 
